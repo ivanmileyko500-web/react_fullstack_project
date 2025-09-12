@@ -1,23 +1,65 @@
-import React, { useState } from 'react';
-import './AuthComponent.css'; // Опционально — для стилей
+import { useState } from 'react';
+import './AuthComponent.css';
 
-const AuthComponent = (setUser) => {
-  const [mode, setMode] = useState(null); // null, 'register', 'login'
+const AuthComponent = ({ setUser }) => {
+  const [mode, setMode] = useState(null);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
+  const getPasswordStrength = (pwd) => {
+    if (!pwd) return { score: 0, message: '', color: '#ddd' };
+
+    const checks = [
+      pwd.length > 6,
+      pwd.length > 12,
+      /[a-z]/.test(pwd),
+      /[A-Z]/.test(pwd),
+      /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+      /\d/.test(pwd),
+    ];
+
+    let score = checks.filter(Boolean).length;
+    let message = '';
+    let color = '#ddd';
+
+    if (score < 3 || pwd.length < 6) {
+      score = Math.min(score, 2);
+      message = 'Слабый';
+      color = '#ff4d4d'; 
+    } else if (score === 3) {
+      message = 'Ненадёжный';
+      color = '#ff9933'; 
+    } else if (score === 4) {
+      message = 'Обычный';
+      color = '#ffcc00'; 
+    } else if (score === 5) {
+      message = 'Сильный';
+      color = '#66cc66'; 
+    } else if (score === 6) {
+      message = 'Безопасный';
+      color = '#3399ff'; 
+    }
+
+    return { score, message, color };
+  };
+
   const handleRegisterClick = () => {
     if (mode === 'register') {
-      // Отправка данных регистрации
       if (!login || !password || !confirmPassword) {
         setError('Все поля обязательны для заполнения');
         return;
       }
       if (password !== confirmPassword) {
         setError('Пароли не совпадают');
+        return;
+      }
+
+      const { score } = getPasswordStrength(password);
+      if (password.length < 6 || score < 3) {
+        setError('Пароль слишком слабый. Используйте более надёжный пароль.');
         return;
       }
 
@@ -42,7 +84,6 @@ const AuthComponent = (setUser) => {
           setError('Ошибка при регистрации');
         });
     } else {
-      // Переключение в режим регистрации
       setMode('register');
       setError('');
       setSuccess(false);
@@ -54,7 +95,6 @@ const AuthComponent = (setUser) => {
 
   const handleLoginClick = () => {
     if (mode === 'login') {
-      // Отправка данных входа
       if (!login || !password) {
         setError('Логин и пароль обязательны');
         return;
@@ -81,7 +121,6 @@ const AuthComponent = (setUser) => {
           setError('Ошибка при входе');
         });
     } else {
-      // Переключение в режим входа
       setMode('login');
       setError('');
       setSuccess(false);
@@ -103,6 +142,8 @@ const AuthComponent = (setUser) => {
   if (success) {
     setUser(login);
   }
+
+  const passwordStrength = mode === 'register' ? getPasswordStrength(password) : null;
 
   return (
     <div className="auth-container">
@@ -141,6 +182,24 @@ const AuthComponent = (setUser) => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Введите пароль"
             />
+            {mode === 'register' && (
+              <div className="password-strength-container">
+                <div
+                  className="password-strength-bar"
+                  style={{
+                    height: '6px',
+                    width: `${(passwordStrength.score * 16.67)}%`,
+                    maxWidth: '100%',
+                    backgroundColor: passwordStrength.color,
+                    borderRadius: '3px',
+                    marginTop: '4px',
+                  }}
+                ></div>
+                <div className="password-strength-label" style={{ marginTop: '4px', fontSize: '0.85em', color: `${passwordStrength.color}` }}>
+                  {passwordStrength.message && `${passwordStrength.message}`}
+                </div>
+              </div>
+            )}
           </div>
 
           {mode === 'register' && (
