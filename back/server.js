@@ -1,3 +1,8 @@
+// т.к. проект тестовый, вопросы безопасности не рассматриваются
+// пароли необходимо хешировать и хранить в зашифрованном виде, например с помощью bcrypt
+// в случае неуспешной валидации возвращать сообщение "Неверный логин или пароль", чтобы брутфорсом нельзя было подобрать логин и пароль отдельно
+// нельзя разрешать с помощью CORS запросы с любого домена
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -9,7 +14,7 @@ app.use(express.json());
 const DatabaseManager = require('./src/databaseManager');
 const dbManager = new DatabaseManager('userData');
 
-// GET /api/transactions?username=...
+// GET /api/transactions?username=... — получить список транзакций пользователя
 app.get('/api/transactions', async (req, res) => {
     const { username } = req.query;
 
@@ -44,28 +49,6 @@ app.post('/api/transactions', async (req, res) => {
     }
 });
 
-// PUT /api/transactions/:id — обновить транзакцию
-app.put('/api/transactions/:id', async (req, res) => {
-    const { id } = req.params;
-    const { date, amount, user_login, category } = req.body;
-
-    try {
-        const result = await dbManager.updateData('transactions', id, {
-            date,
-            amount,
-            user_login,
-            category
-        });
-        if (result.changes === 0) {
-            return res.status(404).json({ error: 'Транзакция не найдена' });
-        }
-        res.json({ message: 'Транзакция обновлена', changes: result.changes });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Ошибка при обновлении транзакции' });
-    }
-});
-
 // DELETE /api/transactions/:id — удалить транзакцию
 app.delete('/api/transactions/:id', async (req, res) => {
     const { id } = req.params;
@@ -82,10 +65,60 @@ app.delete('/api/transactions/:id', async (req, res) => {
     }
 });
 
+// GET /api/categories?username=... — Получить список категорий пользователя
+app.get('/api/categories', async (req, res) => {
+    const { username } = req.query;
+
+    try {
+        const categories = await dbManager.getDataByCondition(
+            'categories',
+            'user_login = ?',
+            [username]
+        );
+        res.json(categories);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Ошибка при получении категорий' });
+    }
+});
+
+// POST /api/categories — Добавить новую категорию
+app.post('/api/categories', async (req, res) => {
+    const { user_login, category, color_code } = req.body;
+
+    try {
+        const result = await dbManager.insertData('categories', {
+            user_login,
+            category,
+            color_code: color_code
+        });
+        res.status(201).json({ id: result.id, message: 'Категория создана' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Ошибка при создании категории' });
+    }
+});
+
+// DELETE /api/categories/:id — Удалить категорию
+app.delete('/api/categories/:id', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const result = await dbManager.deleteData('categories', id);
+        if (!result.deleted) {
+            return res.status(404).json({ error: 'Категория не найдена' });
+        }
+        res.json({ message: 'Категория удалена' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Ошибка при удалении категории' });
+    }
+});
+
 // POST /api/users — создать пользователя
 app.post('/api/users', async (req, res) => {
     const { login, password } = req.body;
-    console.log(login, password);
+
     try {
         const existingUsers = await dbManager.getDataByCondition('users', 'login = ?', [login]);
         if (existingUsers.length > 0) {
