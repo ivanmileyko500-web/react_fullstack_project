@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import './AppComponent.css'
 import Transactions from './Transactions'
+import RoundDiagram from './RoundDiagram';
+import BarDiagram from './BarDiagram';
 
 function AppComponent({username}) {
     const [transactions, setTransactions] = useState({});
@@ -159,10 +161,13 @@ function AppComponent({username}) {
             </div>
             <div className="diagrams">
                 <div className='container round-diagrams'>
-
+                    <div>
+                        <RoundDiagram />
+                    </div>
+                    <div></div>
                 </div>
                 <div className='container bar-diagram'>
-
+                    <BarDiagram />
                 </div>
             </div>
         </main>
