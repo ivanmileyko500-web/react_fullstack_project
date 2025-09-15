@@ -84,17 +84,23 @@ app.get('/api/categories', async (req, res) => {
 
 // POST /api/categories — Добавить новую категорию
 app.post('/api/categories', async (req, res) => {
-    const { user_login, category, color_code } = req.body;
+    const { id, user_login, color_code } = req.body;
 
     try {
+        const existingCategories = await dbManager.getDataByCondition('categories', 'id = ?', [id]);
+        if (existingCategories.length > 0) {
+            return res.status(409).json({ error: 'Категория с таким названием уже существует' });
+        }
+
         const result = await dbManager.insertData('categories', {
+            id,
             user_login,
-            category,
-            color_code: color_code
+            color_code
         });
-        res.status(201).json({ id: result.id, message: 'Категория создана' });
+        res.status(201).json({ id, message: 'Категория создана' });
+
     } catch (err) {
-        console.error(err);
+        console.error('Ошибка при создании категории:', err);
         res.status(500).json({ error: 'Ошибка при создании категории' });
     }
 });
