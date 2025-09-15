@@ -1,0 +1,24 @@
+.transaction-list-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.transaction-list-header > button {
+    width: 150px;
+    height: 50px;
+}
+
+.interactive-elements-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.interactive-elements-container > * {
+    text-align: center;
+    margin: 10px;
+    height: 40px;
+    flex: 1;
+}

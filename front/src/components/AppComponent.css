@@ -1,0 +1,34 @@
+.main {
+    display: flex;
+}
+
+.main > div {
+    margin: 25px;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+}
+
+.transactons {
+    width: 400px;
+    height: 600px;
+}
+
+.diagrams {
+    width: 500px;
+}
+
+.round-diagrams {
+    height: 225px;
+    margin-bottom: 50px;
+}
+
+.bar-diagram {
+    height: 325px;
+}
