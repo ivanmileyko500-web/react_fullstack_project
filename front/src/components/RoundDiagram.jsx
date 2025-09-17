@@ -1,44 +1,75 @@
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-const data = [
-  { name: 'Продукты', value: 400, color: '#FF6384' },
-  { name: 'Транспорт', value: 300, color: '#36A2EB' },
-  { name: 'Развлечения', value: 300, color: '#FFCE56' },
-  { name: 'Жильё', value: 200, color: '#4BC0C0' },
-];
+function aggregateTransactionsByCategory(transactions, categories) {
+  const aggregated = {};
 
-const RADIAN = Math.PI / 180;
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
-  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  transactions.forEach(transaction => {
+    const { category, amount } = transaction;
+    const categoryData = categories[category];
+
+    if (!aggregated[category]) {
+      aggregated[category] = {
+        category,
+        amount: 0,
+        color_code: categoryData.color_code
+      };
+    }
+
+    aggregated[category].textColor = amount > 0 ? '#2e7d32' : '#d32f2f';
+    aggregated[category].amount += Math.abs(amount);
+  });
+
+  return Object.values(aggregated).sort((a, b) => a.category.localeCompare(b.category));
+}
+
+const CustomTooltip = ({ active, payload }) => {
+  if (!active || !payload || !payload.length) {
+    return null;
+  }
+
+  const data = payload[0].payload;
 
   return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central">
-      {`${(percent * 100).toFixed(0)}%`}
-    </text>
+    <div
+      style={{
+        backgroundColor: '#fff',
+        border: '1px solid #ccc',
+        padding: '10px',
+        borderRadius: '6px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+      }}
+    >
+      <p style={{ margin: '0 0 6px 0', fontWeight: 'bold' }}>
+        {data.category}
+      </p>
+      <p style={{ margin: '0', fontSize: '14px' }}>
+        Сумма: <strong style={{ color: data.textColor }}>{data.textColor === '#2e7d32' ? '+' : '-'}{data.amount.toLocaleString()} ₽</strong>
+      </p>
+    </div>
   );
 };
 
-function RoundDiagram() {
+function RoundDiagram({ transactions, categories }) {
+  const transactionsByCategory = aggregateTransactionsByCategory(transactions, categories);
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
         <Pie
-          data={data}
+          data={transactionsByCategory}
           cx="50%"
           cy="50%"
           labelLine={false}
-          label={renderCustomizedLabel}
-          outerRadius={80}
-          innerRadius={40} // делает "дырку" — получается donut
+          outerRadius={100}
+          innerRadius={65}
           fill="#8884d8"
-          dataKey="value"
+          dataKey="amount"
         >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
+          {transactionsByCategory.map((tx, index) => (
+            <Cell key={`cell-${index}`} fill={tx.color_code} />
           ))}
         </Pie>
+        <Tooltip content={<CustomTooltip />}/>
       </PieChart>
     </ResponsiveContainer>
   );

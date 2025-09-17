@@ -152,6 +152,8 @@ function AppComponent({username}) {
             date: tx.date
         }
     })
+    const incomeTransactions = transactionsToRender.filter(tx => tx.amount > 0);
+    const expenseTransactions = transactionsToRender.filter(tx => tx.amount < 0);
 
     // === Рендер ===
 
@@ -175,9 +177,17 @@ function AppComponent({username}) {
             <div className="diagrams">
                 <div className='container round-diagrams'>
                     <div>
-                        <RoundDiagram />
+                        <RoundDiagram 
+                            transactions={incomeTransactions}
+                            categories={categories}
+                        />
                     </div>
-                    <div></div>
+                    <div>
+                        <RoundDiagram 
+                            transactions={expenseTransactions}
+                            categories={categories}
+                        />
+                    </div>
                 </div>
                 <div className='container bar-diagram'>
                     <BarDiagram />
