@@ -17,6 +17,9 @@
 }
 
 .interactive-elements-container > * {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
     margin: 10px;
     height: 40px;

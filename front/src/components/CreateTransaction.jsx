@@ -1,18 +1,10 @@
 import { useState } from 'react';
+import parseDate from '../tools/parseDate';
 import './Transactions.css'
-
-function getCurrentDateInputValue() {
-    const d = new Date();
-    return [
-        d.getFullYear(),
-        String(d.getMonth() + 1).padStart(2, '0'),
-        String(d.getDate()).padStart(2, '0')
-    ].join('-');
-}
 
 function CreateTransaction({ onAddTransaction, categories }) {
     const [transactionAmount, setTransactionAmount] = useState('');
-    const [transactionDate, setTransactionDate] = useState(getCurrentDateInputValue());
+    const [transactionDate, setTransactionDate] = useState(parseDate(new Date()));
     const [transactionCategory, setTransactionCategory] = useState('Прочее');
 
     function newTransaction(data) {
@@ -35,7 +27,6 @@ function CreateTransaction({ onAddTransaction, categories }) {
             </div>
             <div className='interactive-elements-container'>
                 <select value={transactionCategory} onChange={(e) => setTransactionCategory(e.target.value)}>
-                    <option key={'Прочее'}>Прочее</option>
                     {Object.values(categories).map((category) => (
                         <option key={category.id}>{category.id}</option>
                     ))}

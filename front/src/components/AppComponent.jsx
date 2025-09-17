@@ -1,20 +1,19 @@
 import { useState, useEffect } from 'react';
-import './AppComponent.css'
 import Transactions from './Transactions'
 import RoundDiagram from './RoundDiagram';
 import BarDiagram from './BarDiagram';
+import { useFilteredTransactions } from '../tools/useFilteredTransactions';
+import arrayToObject from '../tools/arrayToObject';
+import './AppComponent.css'
 
 function AppComponent({username}) {
     const [transactions, setTransactions] = useState({});
+    const [filters, setFilters] = useState({sortBy: 'date', dateFrom: 'newest', amountFrom: 'biggest', show: 'all'});
     const [categories, setCategories] = useState({});  
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const arrayToObject = (arr, keyField = 'id') =>
-        arr.reduce((obj, item) => {
-            obj[item[keyField]] = { ...item };
-            return obj;
-        }, {});
+    // === Загрузка данных ===
 
     const fetchData = async () => {
         try {
@@ -142,6 +141,18 @@ function AppComponent({username}) {
         }
     };
 
+    // === Подготовка транзакций для отображения ===
+
+    const filteredTransactions = useFilteredTransactions(transactions, filters);
+    const transactionsToRender = filteredTransactions.map((tx) => {
+        return {
+            id: tx.id,
+            category: categories[tx.category] ? categories[tx.category].id : 'Прочее',
+            amount: tx.amount,
+            date: tx.date
+        }
+    })
+
     // === Рендер ===
 
     if (loading) return <div>Загрузка...</div>;
@@ -151,12 +162,14 @@ function AppComponent({username}) {
         <main className="main">
             <div className="container transactons">
                 <Transactions 
-                    transactions={transactions}
+                    transactions={transactionsToRender}
                     categories={categories}
                     onAddTransaction={addTransaction}
                     onDeleteTransaction={deleteTransaction}
                     onAddCategory={addCategory}
                     onDeleteCategory={deleteCategory}
+                    filters={filters}
+                    setFilters={setFilters}
                 />
             </div>
             <div className="diagrams">
