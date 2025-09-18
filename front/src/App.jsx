@@ -3,7 +3,7 @@ import AppComponent from './components/AppComponent'
 import { useState } from 'react'
 
 function App() {
-  const [user, setUser] = useState('babka');
+  const [user, setUser] = useState('');
 
   return (
     <>
