@@ -190,7 +190,11 @@ function AppComponent({username}) {
                     </div>
                 </div>
                 <div className='container bar-diagram'>
-                    <BarDiagram />
+                    <BarDiagram 
+                    incomeTransactions={incomeTransactions}
+                    expenseTransactions={expenseTransactions}
+                    period={filters.show}
+                    />
                 </div>
             </div>
         </main>

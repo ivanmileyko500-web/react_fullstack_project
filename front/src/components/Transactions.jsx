@@ -13,8 +13,6 @@ function Transactions({ transactions, categories, onAddTransaction, onDeleteTran
         setAnimateTransactions(true);
     }, []);
 
-    console.log(animateTransactions);
-
     return (
         <div className="transaction-list">
             <div className="transaction-list-header">
