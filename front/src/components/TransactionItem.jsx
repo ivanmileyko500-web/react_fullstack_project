@@ -2,14 +2,15 @@ import { useState } from 'react';
 import './TransactionItem.css'; // Подключим стили
 import trashCan from '../assets/trashCan.svg';
 
-const TransactionItem = ({ id, category, amount, date, color, onRemove }) => {
+const TransactionItem = ({ id, category, amount, date, color, onRemove, style, className }) => {
   const [showDelete, setShowDelete] = useState(false);
 
   return (
     <div
-      className="transaction-item"
+      className={`${className} transaction-item`}
       onMouseEnter={() => setShowDelete(true)}
       onMouseLeave={() => setShowDelete(false)}
+      style={style}
     >
       <div className="transaction-category">
         <span className="category-dot" style={{ backgroundColor: color }}></span>
